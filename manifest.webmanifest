@@ -1,0 +1,12 @@
+{
+  "name": "si-didy-close",
+  "short_name": "si-didy-close",
+  "description": "L1→R6 bridge · session-close ceremony · Ed25519 audit chain · CID-anchored",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0b0a0f",
+  "theme_color": "#8b1a1a",
+  "icons": [
+    { "src": "data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 192 192%22><rect width=%22192%22 height=%22192%22 fill=%22%230b0a0f%22/><text x=%2296%22 y=%22124%22 font-family=%22serif%22 font-size=%22120%22 fill=%22%23b8974a%22 text-anchor=%22middle%22>%E2%97%8A</text></svg>", "sizes": "192x192", "type": "image/svg+xml" }
+  ]
+}

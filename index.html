@@ -1,0 +1,312 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>si-didy-close · session-close ceremony</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<style>
+  :root{
+    --ox:#8b1a1a; --brass:#b8974a; --cream:#c4bfb2; --void:#0b0a0f;
+    --dim:#1a181f; --line:#2a2630; --green:#5ea24b; --amber:#d4a04a; --red:#c85252;
+    --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    --sans:'DM Sans',system-ui,-apple-system,sans-serif;
+    --serif:'Libre Baskerville',Georgia,serif;
+  }
+  *{box-sizing:border-box;margin:0}
+  html,body{background:var(--void);color:var(--cream);font-family:var(--sans);font-size:14px;line-height:1.5;min-height:100vh}
+  body{padding:24px;max-width:1200px;margin:0 auto;background-image:radial-gradient(circle at 20% 10%,rgba(139,26,26,.05),transparent 60%),radial-gradient(circle at 80% 90%,rgba(184,151,74,.04),transparent 60%)}
+  h1{font-family:var(--serif);font-size:28px;color:var(--brass);margin-bottom:4px;letter-spacing:.5px}
+  h2{font-family:var(--serif);font-size:17px;color:var(--brass);margin:20px 0 10px;letter-spacing:.3px}
+  .sub{color:#8a8579;font-size:12px;font-family:var(--mono);margin-bottom:20px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:820px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--dim);border:1px solid var(--line);border-radius:6px;padding:16px}
+  .card h2{margin-top:0}
+  label{display:block;font-family:var(--mono);font-size:11px;color:#8a8579;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;margin-top:10px}
+  input,textarea,select{width:100%;background:var(--void);color:var(--cream);border:1px solid var(--line);border-radius:4px;padding:8px 10px;font-family:var(--mono);font-size:12px}
+  textarea{min-height:80px;resize:vertical}
+  button{background:var(--ox);color:var(--cream);border:1px solid var(--ox);padding:8px 16px;font-family:var(--sans);font-size:13px;border-radius:4px;cursor:pointer;margin-top:10px;font-weight:500}
+  button:hover{background:#a03030}
+  button.ghost{background:transparent;border-color:var(--line);color:var(--cream)}
+  button.ghost:hover{background:var(--dim);border-color:var(--brass)}
+  button.gold{background:var(--brass);color:var(--void);border-color:var(--brass);font-weight:600}
+  button.gold:hover{background:#c9a558}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  pre{background:var(--void);border:1px solid var(--line);border-radius:4px;padding:10px;font-family:var(--mono);font-size:11px;overflow:auto;max-height:280px;color:#a8a397;white-space:pre-wrap;word-break:break-all}
+  .log{font-family:var(--mono);font-size:11px;color:#8a8579;max-height:200px;overflow-y:auto;background:var(--void);border:1px solid var(--line);border-radius:4px;padding:8px}
+  .log .row{padding:2px 0;border-bottom:1px dashed var(--line)}
+  .log .row:last-child{border-bottom:none}
+  .log .k{color:var(--brass)}
+  .log .ts{color:#5a544c}
+  .chain{margin-top:10px}
+  .chain .link{display:flex;gap:8px;padding:6px 0;border-bottom:1px dashed var(--line);font-family:var(--mono);font-size:11px}
+  .chain .link:last-child{border-bottom:none}
+  .chain .seq{color:var(--brass);width:28px;flex-shrink:0}
+  .chain .kind{color:var(--cream);width:100px;flex-shrink:0}
+  .chain .hash{color:#5a544c;font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+  .chain .link::before{content:'◊';color:var(--brass);margin-right:4px}
+  .stat{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed var(--line);font-family:var(--mono);font-size:12px}
+  .stat:last-child{border:none}
+  .stat .v{color:var(--brass)}
+  .ok{color:var(--green)}
+  .warn{color:var(--amber)}
+  .err{color:var(--red)}
+  .row-inline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .badge{display:inline-block;background:var(--void);border:1px solid var(--line);color:#8a8579;padding:2px 8px;border-radius:10px;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:1px}
+  .badge.ok{border-color:var(--green);color:var(--green)}
+  .prior{padding:8px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:11px;cursor:pointer}
+  .prior:hover{background:var(--void)}
+  .prior:last-child{border:none}
+  .prior .id{color:var(--brass)}
+  .prior .cid{color:#5a544c;font-size:10px;word-break:break-all}
+  .footer{margin-top:32px;text-align:center;color:#5a544c;font-family:var(--mono);font-size:10px;letter-spacing:1px}
+  .seal{color:var(--brass)}
+  #chainSvg{width:100%;height:180px;background:var(--void);border:1px solid var(--line);border-radius:4px;margin-top:10px}
+</style>
+
+<h1>si-didy-close</h1>
+<div class="sub">◊·κ=1 · L1→R6 bridge · session-close ceremony · Ed25519 audit chain · CID-anchored</div>
+
+<div class="grid">
+  <div class="card">
+    <h2>Session config</h2>
+    <label>Session ID</label>
+    <input id="sid" value="">
+    <label>Session name</label>
+    <input id="sname" placeholder="e.g. NiceAssOS L1 upgrade sprint">
+    <label>Fork pubkey (hex · optional)</label>
+    <input id="forkpub" placeholder="auto-generated Ed25519 pub if blank">
+    <label>fallresolve endpoint</label>
+    <input id="fresolve" value="https://sjgant80-hub.github.io/fallresolve/api">
+    <div class="row-inline" style="margin-top:12px">
+      <span class="badge" id="badgeKey">key: minting…</span>
+      <span class="badge" id="badgeMesh">mesh: —</span>
+      <span class="badge" id="badgePod">pod: local</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Simulate audit events</h2>
+    <div class="row-inline">
+      <button class="ghost" onclick="addCall()">+ claude call</button>
+      <button class="ghost" onclick="addCommit(true)">+ commitment met</button>
+      <button class="ghost" onclick="addCommit(false)">+ pending commit</button>
+      <button class="ghost" onclick="addError()">+ error event</button>
+      <button class="ghost" onclick="resetSession()">reset</button>
+    </div>
+    <label style="margin-top:14px">Live session log</label>
+    <div class="log" id="log"></div>
+  </div>
+</div>
+
+<div class="card" style="margin-top:16px">
+  <h2>Audit chain (prev_hash-linked)</h2>
+  <div class="chain" id="chain"></div>
+  <svg id="chainSvg" viewBox="0 0 800 180"></svg>
+</div>
+
+<div class="card" style="margin-top:16px">
+  <h2>Finalise ceremony</h2>
+  <p style="color:#8a8579;font-size:12px;margin-bottom:8px">Gathers chain → signs Ed25519 blob → POSTs fallresolve → stores in FallPod → publishes session_closed on niceassos-mesh + fall-signal.</p>
+  <button class="gold" id="finaliseBtn" onclick="finalise()">finalise now</button>
+  <span id="finaliseStatus" style="margin-left:12px;font-family:var(--mono);font-size:11px;color:#8a8579"></span>
+  <div id="resolveOut" style="margin-top:14px"></div>
+</div>
+
+<div class="grid" style="margin-top:16px">
+  <div class="card">
+    <h2>Summary preview</h2>
+    <div id="summary"></div>
+  </div>
+  <div class="card">
+    <h2>Prior resolves</h2>
+    <div id="priors" style="margin-top:8px"></div>
+    <label style="margin-top:12px">Verify by CID</label>
+    <input id="verifyCid" placeholder="sha256:…">
+    <button class="ghost" onclick="verifyCid()">verify chain</button>
+    <div id="verifyOut" style="margin-top:10px;font-family:var(--mono);font-size:11px"></div>
+  </div>
+</div>
+
+<div class="footer">
+  <span class="seal">◊·κ=1</span> · si-didy-close v1 · MIT · AI-Native Solutions · <span class="seal">Ω</span> ring 6
+</div>
+
+<script type="module">
+import { openSiDidyClose } from './si-didy-close.js';
+
+const state = {
+  session: null,
+  close: null
+};
+
+function fresh() {
+  return {
+    id: 'sess-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8),
+    name: '',
+    started_at: new Date().toISOString(),
+    forkPub: null,
+    calls: [],
+    audit: [],
+    envelopes: [],
+    commitments: [],
+    prev_resolve_cid: null
+  };
+}
+
+function log(kind, msg) {
+  const el = document.getElementById('log');
+  const row = document.createElement('div');
+  row.className = 'row';
+  row.innerHTML = `<span class="ts">${new Date().toLocaleTimeString()}</span> <span class="k">${kind}</span> ${msg}`;
+  el.prepend(row);
+}
+
+window.addCall = function () {
+  const c = {
+    ts: new Date().toISOString(),
+    model: 'claude-opus-4-7',
+    in_tokens: 200 + (Math.random() * 400 | 0),
+    out_tokens: 80 + (Math.random() * 300 | 0),
+    request_hash: 'r_' + Math.random().toString(36).slice(2, 10),
+    response_hash: 'p_' + Math.random().toString(36).slice(2, 10)
+  };
+  state.session.calls.push(c);
+  log('claude_call', `${c.in_tokens}→${c.out_tokens} tok`);
+  refresh();
+};
+window.addCommit = function (met) {
+  const c = { text: 'commit-' + state.session.commitments.length, done: !!met, ts: new Date().toISOString() };
+  state.session.commitments.push(c);
+  state.session.audit.push({ kind: met ? 'commit_met' : 'commit_pending', ts: c.ts, payload: c });
+  log(met ? 'commit_met' : 'commit_pending', c.text);
+  refresh();
+};
+window.addError = function () {
+  state.session.audit.push({ kind: 'error', ts: new Date().toISOString(), payload: { error: 'simulated' } });
+  log('error', 'simulated');
+  refresh();
+};
+window.resetSession = function () {
+  state.session = fresh();
+  document.getElementById('log').innerHTML = '';
+  document.getElementById('sid').value = state.session.id;
+  refresh();
+};
+
+async function refresh() {
+  const chain = await state.close._gatherChain(state.session);
+  const summary = state.close._summarise(state.session, chain);
+  renderChain(chain);
+  renderSummary(summary);
+}
+
+function renderChain(chain) {
+  const el = document.getElementById('chain');
+  if (!chain.length) { el.innerHTML = '<div style="color:#5a544c;font-family:var(--mono);font-size:11px">— no events yet —</div>'; drawSvg([]); return; }
+  el.innerHTML = chain.map(l => `
+    <div class="link">
+      <span class="seq">#${l.seq}</span>
+      <span class="kind">${l.kind}</span>
+      <span class="hash">${l.prev_hash ? l.prev_hash.slice(0, 32) + '…' : 'genesis'}</span>
+    </div>`).join('');
+  drawSvg(chain);
+}
+
+function drawSvg(chain) {
+  const svg = document.getElementById('chainSvg');
+  if (!chain.length) { svg.innerHTML = '<text x="400" y="90" fill="#5a544c" font-family="monospace" font-size="12" text-anchor="middle">no chain</text>'; return; }
+  const n = Math.min(chain.length, 12);
+  const step = 720 / Math.max(n - 1, 1);
+  const y = 90;
+  let out = '';
+  for (let i = 0; i < n; i++) {
+    const x = 40 + i * step;
+    if (i > 0) out += `<line x1="${40 + (i - 1) * step + 12}" y1="${y}" x2="${x - 12}" y2="${y}" stroke="#b8974a" stroke-width="1"/>`;
+    out += `<circle cx="${x}" cy="${y}" r="10" fill="#0b0a0f" stroke="#b8974a" stroke-width="1.5"/>`;
+    out += `<text x="${x}" y="${y + 4}" fill="#b8974a" font-family="monospace" font-size="10" text-anchor="middle">${chain[i].seq}</text>`;
+    out += `<text x="${x}" y="${y + 28}" fill="#8a8579" font-family="monospace" font-size="9" text-anchor="middle">${chain[i].kind.slice(0, 8)}</text>`;
+  }
+  if (chain.length > 12) out += `<text x="760" y="${y + 4}" fill="#5a544c" font-family="monospace" font-size="10">+${chain.length - 12}</text>`;
+  svg.innerHTML = out;
+}
+
+function renderSummary(s) {
+  document.getElementById('summary').innerHTML = `
+    <div class="stat"><span>calls</span><span class="v">${s.calls}</span></div>
+    <div class="stat"><span>total events</span><span class="v">${s.total_events}</span></div>
+    <div class="stat"><span>in tokens</span><span class="v">${s.in_tokens}</span></div>
+    <div class="stat"><span>out tokens</span><span class="v">${s.out_tokens}</span></div>
+    <div class="stat"><span>errors</span><span class="v ${s.errors ? 'err' : 'ok'}">${s.errors}</span></div>
+    <div class="stat"><span>commitments met</span><span class="v ok">${s.commitments_met}</span></div>
+    <div class="stat"><span>commitments pending</span><span class="v ${s.commitments_pending ? 'warn' : 'ok'}">${s.commitments_pending}</span></div>
+    <div class="stat"><span>v21 alignment</span><span class="v">${(s.v21_alignment * 100).toFixed(1)}%</span></div>
+  `;
+}
+
+window.finalise = async function () {
+  const btn = document.getElementById('finaliseBtn');
+  const status = document.getElementById('finaliseStatus');
+  btn.disabled = true;
+  status.textContent = 'gathering chain…';
+  try {
+    state.session.name = document.getElementById('sname').value || 'unnamed';
+    state.session.forkPub = document.getElementById('forkpub').value || state.close.forkPub;
+    state.close.fallresolveEndpoint = document.getElementById('fresolve').value || state.close.fallresolveEndpoint;
+    status.textContent = 'signing + storing…';
+    const result = await state.close.finalise(state.session);
+    status.innerHTML = `<span class="ok">◊ resolved</span> in ${result.duration_ms}ms`;
+    document.getElementById('resolveOut').innerHTML = `
+      <div class="stat"><span>CID</span><span class="v" style="font-size:10px;word-break:break-all">${result.cid}</span></div>
+      <div class="stat"><span>hash</span><span class="v" style="font-size:10px;word-break:break-all">${result.hash}</span></div>
+      <div class="stat"><span>storage</span><span class="v">${result.resolve_url}</span></div>
+      <label style="margin-top:12px">Signed blob</label>
+      <pre>${JSON.stringify(result.blob, null, 2)}</pre>
+    `;
+    log('session_closed', result.cid.slice(0, 24) + '…');
+    await loadPriors();
+  } catch (e) {
+    status.innerHTML = `<span class="err">failed:</span> ${e.message}`;
+  }
+  btn.disabled = false;
+};
+
+async function loadPriors() {
+  const list = await state.close.listResolves();
+  const el = document.getElementById('priors');
+  if (!list.length) { el.innerHTML = '<div style="color:#5a544c;font-family:var(--mono);font-size:11px">— none yet —</div>'; return; }
+  el.innerHTML = list.slice().reverse().slice(0, 8).map(r => `
+    <div class="prior" onclick="document.getElementById('verifyCid').value='${r.cid}';verifyCid()">
+      <div class="id">${r.session_id}</div>
+      <div class="cid">${r.cid}</div>
+    </div>`).join('');
+}
+
+window.verifyCid = async function () {
+  const cid = document.getElementById('verifyCid').value.trim();
+  if (!cid) return;
+  const out = document.getElementById('verifyOut');
+  out.textContent = 'verifying…';
+  const r = await state.close.verify(cid);
+  if (r.ok) {
+    out.innerHTML = `<span class="ok">◊ chain valid</span> · ${r.chain_length} links · sig ${r.signature_valid ? '<span class="ok">valid</span>' : '<span class="warn">unsigned</span>'}`;
+  } else {
+    out.innerHTML = `<span class="err">chain invalid:</span> ${r.reason}${r.at != null ? ' @ #' + r.at : ''}`;
+  }
+};
+
+// ── boot ─────────────────────────────────────────────────────────
+(async () => {
+  state.close = await openSiDidyClose({});
+  document.getElementById('badgeKey').textContent = state.close.forkPub ? 'key: ' + state.close.forkPub.slice(0, 12) + '…' : 'key: browser-lacks-ed25519';
+  document.getElementById('badgeKey').className = 'badge ok';
+  document.getElementById('badgeMesh').textContent = typeof BroadcastChannel !== 'undefined' ? 'mesh: BroadcastChannel' : 'mesh: none';
+  if (typeof BroadcastChannel !== 'undefined') document.getElementById('badgeMesh').className = 'badge ok';
+  state.session = fresh();
+  document.getElementById('sid').value = state.session.id;
+  document.getElementById('forkpub').value = state.close.forkPub || '';
+  await refresh();
+  await loadPriors();
+  log('boot', 'si-didy-close ready');
+  // Register SW
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => { });
+})();
+</script>
