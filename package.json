@@ -1,0 +1,16 @@
+{
+  "name": "si-didy-close",
+  "version": "0.1.0",
+  "description": "Session-close module for si-didy: builds a prev_hash-linked audit chain of a session's Claude calls, seals it into a signed, content-addressed resolve blob, stores it, and broadcasts a session_closed envelope.",
+  "type": "module",
+  "main": "si-didy-close.js",
+  "exports": "./si-didy-close.js",
+  "files": [
+    "si-didy-close.js"
+  ],
+  "scripts": {
+    "test": "node test.mjs"
+  },
+  "author": "Simon Gant (AI-Native Solutions) <sjgant80@gmail.com>",
+  "license": "MIT"
+}
